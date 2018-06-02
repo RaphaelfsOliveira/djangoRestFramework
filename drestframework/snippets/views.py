@@ -11,7 +11,7 @@ from snippets.serializers import SnippetSerializer
 @api_view(['GET', 'POST'])
 def snippet_list(request, format=None):
     """
-    Listar todos os code snippets, ou criar um novo snippet
+    Lista todos os snippets, ou Cria um novo
     """
     if request.method == 'GET':
         snippets = Snippet.objects.all()
@@ -29,7 +29,7 @@ def snippet_list(request, format=None):
 @api_view(['GET', 'PUT', 'DELETE'])
 def snippet_detail(request, pk, format=None):
     """
-    Retorna somente um, Atualiza ou deleta um code snippet
+    Retorna Detalhes, Atualiza ou Deleta um snippet
     """
     try:
         snippet = Snippet.objects.get(pk=pk)
