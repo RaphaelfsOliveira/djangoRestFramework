@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from rest_framework import status, mixins, generics
+from rest_framework import status, mixins, generics, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from snippets.models import Snippet
-from snippets.serializers import SnippetSerializer
+from django.contrib.auth.models import User
+from snippets.serializers import SnippetSerializer, UserSerializer
 from django.http import Http404
 
 
@@ -141,6 +142,10 @@ class SnippetListGeneric(generics.ListCreateAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class SnippetDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
@@ -149,3 +154,19 @@ class SnippetDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+
+
+class UserList(generics.ListCreateAPIView):
+    """
+    Cria um novo usuário, ou lista todos.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Mostra Detalhes, Atualiza ou Deleta um usuário.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
