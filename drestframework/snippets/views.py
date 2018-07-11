@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from rest_framework import status, mixins, generics, permissions, renderers
-from rest_framework.decorators import api_view
+from rest_framework import status, mixins, generics, permissions, renderers, viewsets
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -160,6 +160,15 @@ class SnippetDetailGeneric(generics.RetrieveUpdateDestroyAPIView):
                           IsOwnerOrReadOnly,)
 
 
+class SnippetHighlight(generics.GenericAPIView):
+    queryset = Snippet.objects.all()
+    renderer_classes = (renderers.StaticHTMLRenderer,)
+
+    def get(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
+
+
 class UserList(generics.ListCreateAPIView):
     """
     Cria um novo usuário, ou lista todos.
@@ -176,6 +185,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
 
 
+# reverse url
 @api_view(['GET'])
 def api_root(request, format=None):
     return Response({
@@ -184,10 +194,34 @@ def api_root(request, format=None):
     })
 
 
-class SnippetHighlight(generics.GenericAPIView):
-    queryset = Snippet.objects.all()
-    renderer_classes = (renderers.StaticHTMLRenderer,)
+# Usando viewsets
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Prove automaticamente lista e detalhes de usuários.
+    - ajudando a não duplicar o codigo em duas classes que
+    usariam a mesma informação.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
-    def get(self, request, *args, **kwargs):
+
+class SnippetViewSet(viewsets.ModelViewSet):
+    """
+    Essa viewset prove automaticamente list, create, retrieve, update and delete
+    actions.
+    Adicionalmente vamos prover uma ação extra, highlight.
+    - Essa viewset vai servir para substituir o codigo que foi duplicado nas
+    classes anteriores que usavam a mesma informação.
+    """
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly)
+
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
         snippet = self.get_object()
         return Response(snippet.highlighted)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
