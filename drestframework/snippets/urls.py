@@ -5,8 +5,8 @@ from snippets import views
 
 
 urlpatterns = [
-    url(r'^snippets/$', views.snippet_list),
-    url(r'^snippets/(?P<pk>[0-9]+)/$', views.snippet_detail),
+    url(r'^v1/snippets/$', views.snippet_list),
+    url(r'^v1/snippets/(?P<pk>[0-9]+)/$', views.snippet_detail),
 
     # usando class-based views
     url(r'^v2/snippets/$', views.SnippetList.as_view()),
@@ -17,11 +17,15 @@ urlpatterns = [
     url(r'^v3/snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailMix.as_view()),
 
     # Usando Generic Class-based views
-    url(r'^v4/snippets/$', views.SnippetListGeneric.as_view()),
-    url(r'^v4/snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailGeneric.as_view()),
+    url(r'^snippets/$', views.SnippetListGeneric.as_view()),
+    url(r'^snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailGeneric.as_view()),
 
     url(r'^users/$', views.UserList.as_view()),
     url(r'^users/(?P<pk>[0-9]+)$', views.UserDetail.as_view()),
+
+    url(r'^snippets/(?P<pk>[0-9]+)/highlight/$', views.SnippetHighlight.as_view()),
+
+    url(r'^$', views.api_root),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
