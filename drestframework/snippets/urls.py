@@ -4,7 +4,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from snippets import views
 
 
-urlpatterns = [
+urlpatterns = format_suffix_patterns([
+    url(r'^$', views.api_root),
+
     url(r'^v1/snippets/$', views.snippet_list),
     url(r'^v1/snippets/(?P<pk>[0-9]+)/$', views.snippet_detail),
 
@@ -17,18 +19,14 @@ urlpatterns = [
     url(r'^v3/snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailMix.as_view()),
 
     # Usando Generic Class-based views
-    url(r'^snippets/$', views.SnippetListGeneric.as_view()),
-    url(r'^snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailGeneric.as_view()),
+    url(r'^snippets/$', views.SnippetListGeneric.as_view(), name='snippet-list'),
+    url(r'^snippets/(?P<pk>[0-9]+)/$', views.SnippetDetailGeneric.as_view(), name='snippet-detail'),
 
-    url(r'^users/$', views.UserList.as_view()),
-    url(r'^users/(?P<pk>[0-9]+)$', views.UserDetail.as_view()),
+    url(r'^users/$', views.UserList.as_view(), name='users-list'),
+    url(r'^users/(?P<pk>[0-9]+)$', views.UserDetail.as_view(), name='users-detail'),
 
-    url(r'^snippets/(?P<pk>[0-9]+)/highlight/$', views.SnippetHighlight.as_view()),
-
-    url(r'^$', views.api_root),
-]
-
-urlpatterns = format_suffix_patterns(urlpatterns)
+    url(r'^snippets/(?P<pk>[0-9]+)/highlight/$', views.SnippetHighlight.as_view(), name='snippet-highlight'),
+])
 
 urlpatterns += [
     url(r'^api-auth/', include('rest_framework.urls')),
